@@ -2,6 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Usuario;
+use App\Form\UsuarioType;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,6 +14,14 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class UsuariosController extends Controller
 {
+
+    protected $em;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->em = $entityManager;
+    }
+
     /**
      * @Route("/usuarios", name="usuarios")
      */
@@ -46,5 +57,65 @@ class UsuariosController extends Controller
     public function painel()
     {
         return new Response("<h1> Painel </h1>");
+    }
+
+    /**
+     * @Route("/usuario/cadastrar", name="cadastrar_usuario")
+     * @Template("usuarios/registro.html.twig")
+     * @param Request $request
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function cadastrar(Request $request, \Swift_Mailer $mailer)
+    {
+        $usuario = new Usuario();
+        $form = $this->createForm(UsuarioType::class, $usuario);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $encoder = $this->get('security.password_encoder');
+            $senha_cript = $encoder->encodePassword($usuario, $form->getData()->getPassword());
+            $usuario->setSenha($senha_cript);
+
+            $token = md5(uniqid());
+            $usuario->setToken($token);
+
+            $usuario->setRoles("ROLE_ADMIN");
+
+            $this->em->persist($usuario);
+            $this->em->flush();
+
+            $mensagem = (new \Swift_Message($usuario->getNome() . "ative sua conta no Microjobs CAP"))
+                ->setFrom('noreply@email.com')
+                ->setTo([$usuario->getEmail() => $usuario->getNome()])
+                ->setBody($this->renderView("emails/usuarios/registro.html.twig", [
+                    'nome' => $usuario->getNome(),
+                    'token' => $usuario->getToken()
+                ]), 'text/html');
+
+            $mailer->send($mensagem);
+
+            $this->addFlash("success", "Verifique seu email para completar seu cadastro!");
+            return $this->redirectToRoute("default");
+        }
+
+        return [
+            'form' => $form->createView()
+        ];
+    }
+
+    /**
+     * @Route("/usuario/ativar-conta/{token}", name="email_ativar_conta")
+     */
+    public function ativar_conta($token)
+    {
+        $usuario = $this->em->getRepository(Usuario::class)->findOneBy(['token' => $token]);
+        $usuario->setStatus(true);
+
+        $this->em->persist($usuario);
+        $this->em->flush();
+
+        $this->addFlash("success", "Cadastrado ativado com Sucesso! Informe email e senha para acessar o sistema");
+        return $this->redirectToRoute("login");
+
     }
 }

@@ -18,4 +18,15 @@ class DefaultController extends Controller
 
             ];
     }
+
+
+    /**
+     * @Route("/painel", name="painel")
+     * @Template("default/painel.html.twig")
+     * @return array
+     */
+    public function painel()
+    {
+        return [];
+    }
 }
