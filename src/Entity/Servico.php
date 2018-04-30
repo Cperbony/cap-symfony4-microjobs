@@ -23,23 +23,23 @@ class Servico
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Campo título não pode ser branco")
-     * @Assert\Range(
+     * @Assert\Length(
      *     min="40",
-     *     minMessage="o Campo título de ter no Mínimo de 40 caracteres",
+     *     minMessage="o Campo título de ter no Mínimo de {{ limit }} caracteres",
      *     max="255",
-     *     maxMessage="o Campo título de ter no Máximo de 255 caracterers"
+     *     maxMessage="o Campo título de ter no Máximo de {{ limit }} caracterers"
      * )
      */
     private $titulo;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Gedmo\Slug(fields={"titulo"}, updatable=true)
      */
     private $slug;
 
     /**
      * @ORM\Column(type="decimal", precision=2)
-     * @Assert\NotBlank(message="Campo valor não pode ser branco")
      */
     private $valor;
 
@@ -64,7 +64,7 @@ class Servico
      * @ORM\Column(type="string", length=1,
      *     options={
      *     "comment": "Usar P para publicado, A para Em Análise, I para Inativo, E para Excluído e R para Rejeitado"})
-     * @Assert\Choice(choices"{"P", "A", "I", "E", "R"}")
+     * @Assert\Choice(choices={"P", "A", "I", "E", "R"})
      */
     private $status;
 
@@ -84,7 +84,7 @@ class Servico
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Assert\NotBlank(message="Selecione uma imagem para o job")
      * @Assert\Image(
-     *     mimeTypes={"image/*"}
+     *     mimeTypes={"image/*"},
      *     mimeTypesMessage="Tipo de Arquivo Inválido",
      *     maxHeight="1000",
      *     maxHeightMessage="Máximo de 1000px de altura",
@@ -195,7 +195,7 @@ class Servico
         return $this->status;
     }
 
-    public function setStatus(string $status): self
+    public function setStatus($status): self
     {
         $this->status = $status;
 
