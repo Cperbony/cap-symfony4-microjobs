@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class UsuariosController extends Controller
@@ -50,14 +51,14 @@ class UsuariosController extends Controller
         ];
     }
 
-    /**
-     * @Route("/painel", name="painel")
-     * @return Response
-     */
-    public function painel()
-    {
-        return new Response("<h1> Painel </h1>");
-    }
+//    /**
+//     * @Route("/painel", name="painel")
+//     * @return Response
+//     */
+//    public function painel()
+//    {
+//        return new Response("<h1> Painel </h1>");
+//    }
 
     /**
      * @Route("/usuario/cadastrar", name="cadastrar_usuario")
@@ -79,20 +80,29 @@ class UsuariosController extends Controller
             $token = md5(uniqid());
             $usuario->setToken($token);
 
-            $usuario->setRoles("ROLE_ADMIN");
+            $usuario->setRoles("ROLE_FREELA");
 
             $this->em->persist($usuario);
             $this->em->flush();
 
-            $mensagem = (new \Swift_Message($usuario->getNome() . "ative sua conta no Microjobs CAP"))
-                ->setFrom('noreply@email.com')
-                ->setTo([$usuario->getEmail() => $usuario->getNome()])
-                ->setBody($this->renderView("emails/usuarios/registro.html.twig", [
+            $this->get('email')->enviar(
+                $usuario->getNome() . ", ative sua conta no Microjobs",
+                [$usuario->getEmail() => $usuario->getNome()],
+                "emails/usuarios/registro.html.twig", [
                     'nome' => $usuario->getNome(),
                     'token' => $usuario->getToken()
-                ]), 'text/html');
+                ]
+            );
 
-            $mailer->send($mensagem);
+//            $mensagem = (new \Swift_Message($usuario->getNome() . "ative sua conta no Microjobs CAP"))
+//                ->setFrom('noreply@email.com')
+//                ->setTo([$usuario->getEmail() => $usuario->getNome()])
+//                ->setBody($this->renderView("emails/usuarios/registro.html.twig", [
+//                    'nome' => $usuario->getNome(),
+//                    'token' => $usuario->getToken()
+//                ]), 'text/html');
+//
+//            $mailer->send($mensagem);
 
             $this->addFlash("success", "Verifique seu email para completar seu cadastro!");
             return $this->redirectToRoute("default");
@@ -104,9 +114,9 @@ class UsuariosController extends Controller
     }
 
     /**
-     * @Route("/usuario/ativar-conta/{token}", name="email_ativar_conta")
+     * @Route("/usuarios/ativar-conta/{token}", name="email_ativar_conta")
      */
-    public function ativar_conta($token)
+    public function ativarConta($token)
     {
         $usuario = $this->em->getRepository(Usuario::class)->findOneBy(['token' => $token]);
         $usuario->setStatus(true);
@@ -116,6 +126,35 @@ class UsuariosController extends Controller
 
         $this->addFlash("success", "Cadastrado ativado com Sucesso! Informe email e senha para acessar o sistema");
         return $this->redirectToRoute("login");
+    }
+
+    /**
+     * @Route("/painel/usuario/mudar-para-cliente", name="mudar_para_cliente")
+     * @Template("usuarios/mudar-para-cliente.html.twig")
+     */
+    public function mudarParaCliente()
+    {
+
+    }
+
+    /**
+     * @Route("/painel/usuario/mudar-para-cliente/confirmar", name="confirmar_mudar_para_cliente")
+     *
+     * @param UserInterface $user
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function confirmarMudarParaCliente(UserInterface $user)
+    {
+        $usuario = $this->em->getRepository(Usuario::class)->find($user);
+        $usuario->limparRoles();
+
+        $usuario->setRoles("ROLE_CLIENTE");
+
+        $this->em->persist($usuario);
+        $this->em->flush();
+
+        $this->addFlash("success", "Perfil Alterado com Sucesso!");
+        return $this->redirectToRoute("painel");
 
     }
 }

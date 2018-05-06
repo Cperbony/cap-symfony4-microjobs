@@ -1,0 +1,40 @@
+{% extends 'base_painel.html.twig' %}
+
+{% block topo_painel %}
+    <h3>Listando Vendas</h3>
+    {%  endblock %}
+
+{% block body %}
+    {% for venda in vendas %}
+        <div class="card mt-2">
+            <div class="card-body">
+                <div class="col-md-1">
+                    <img src="{{ asset(caminho_imagens ~ venda.servico.imagem) }}" alt="{{ venda.servico.titulo }}"
+                         width="60">
+                </div>
+                <div class="col-md-5">
+                    <h5>{{ venda.servico.titulo }}</h5>
+                </div>
+                <div class="col-md-2">
+                    <p>{{ venda.dataCadastro | date("d/m/Y") }}</p>
+                </div>
+                <div class="col-md-3">
+                    <p>{{ venda.freelancer.nome }}</p>
+                </div>
+                <div class="col-md-1">
+                    {# <a #}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="card mb-2">
+            <div class="card-body">
+                <div class="alert alert-warning">Nenhuma Venda Encontrada</div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block title %}
+    Listando Venda de {{ app.user.nome }}
+{% endblock %}

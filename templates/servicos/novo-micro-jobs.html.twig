@@ -2,7 +2,7 @@
 
 {% block body %}
     <div class="container mt-5">
-        <h3>{{ block('title') }}</h3>
+        <h3><a href="{{ path('painel') }}" title="Retornar ao painel do usuário"><i class="fa fa-backward"></i></a> {{ block('title') }}</h3>
         <hr>
         <!-- Inicio form -->
         {% form_theme form with 'bootstrap_4_layout.html.twig' %}

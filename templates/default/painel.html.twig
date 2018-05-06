@@ -1,12 +1,53 @@
-{% extends "base.html.twig" %}
+{% extends 'base_painel.html.twig' %}
 
-{% block title %}Painel - {% endblock %}
+{% block title %}Painel do usuário - {% endblock %}
 
-{% block body %}
-
-    <div class="container mt-5">
-        <h3>Painel do Usuário</h3>
-        <hr>
+{% block topo_painel %}
+    <h1>Painel do usuário</h1>
+    <hr>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <h3 class="card-header text-center  text-white bg-info">Saldo Total</h3>
+                <div class="card-body">
+                    <h4 class="text-center text-danger">R$ 130,00</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <h3 class="card-header text-center  text-white bg-danger">Saldo não liberado</h3>
+                <div class="card-body">
+                    <h4 class="text-center text-danger">R$ 40,00</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <h3 class="card-header text-center text-white bg-success">Saldo disponível</h3>
+                <div class="card-body">
+                    <h4 class="text-center text-danger">R$ 90,00</h4>
+                </div>
+            </div>
+        </div>
     </div>
+    {%  endblock %}
 
+{% block body_painel %}
+
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".bt_excluir_servico").click(function (ev) {
+                ev.preventDefault();
+
+                if (confirm("Deseja excluir esse job?")) {
+                    var url = $(this).prop("href");
+                    window.location = url;
+                }
+            });
+        });
+    </script>
 {% endblock %}

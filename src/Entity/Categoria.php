@@ -21,15 +21,10 @@ class Categoria
     /**
      * @ORM\Column(type="string", length=100)
      */
-    private $name;
-
-    /**
-     * @ORM\Column(type="string", length=100)
-     */
     private $nome;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=255)
      */
     private $slug;
 
@@ -39,7 +34,7 @@ class Categoria
     private $data_cadastro;
 
     /**
-     * @ORM\Column(type="datetime_immutable")
+     * @ORM\Column(type="datetime_immutable", nullable=true)
      */
     private $data_alteracao;
 
@@ -56,18 +51,6 @@ class Categoria
     public function getId()
     {
         return $this->id;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): self
-    {
-        $this->name = $name;
-
-        return $this;
     }
 
     public function getNome(): ?string
@@ -111,7 +94,7 @@ class Categoria
         return $this->data_alteracao;
     }
 
-    public function setDataAlteracao(\DateTimeImmutable $data_alteracao): self
+    public function setDataAlteracao(?\DateTimeImmutable $data_alteracao): self
     {
         $this->data_alteracao = $data_alteracao;
 
@@ -143,4 +126,10 @@ class Categoria
 
         return $this;
     }
+
+    public function __toString()
+    {
+        return $this->nome;
+    }
+
 }

@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block topo %}
+
+    <h3>Listando Compras</h3>
+
+{% endblock %}
+
+{% block body_painel %}
+    {# for#}
+    <div class="card mt-2">
+        <div class="card-body">
+            <div class="col-md-1">
+                <img src="" alt="" width="60">
+            </div>
+            <div class="col-md-5">
+                <h5>{# titulo#}</h5>
+            </div>
+            <div class="col-md-2">
+                <p>{# data #}</p>
+            </div>
+            <div class="col-md-3">
+                <p>{# freelancer ou cliente#}</p>
+            </div>
+            <div class="col-md-1">
+                {# <a #}
+            </div>
+        </div>
+    </div>
+    {#{% else %}#}
+    <div class="card mb-2">
+        <div class="card-body">
+            <div class="alert alert-warning">Nenhum Serviço Encontrado</div>
+        </div>
+    </div>
+    {#{% endfor %}#}
+{% endblock %}
+
+{% block title %}
+    Listando compras de {{ app.user.nome }}
+{% endblock %}
