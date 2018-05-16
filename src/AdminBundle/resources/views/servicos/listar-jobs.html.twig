@@ -1,0 +1,130 @@
+{% extends '@Admin/base_admin.html.twig' %}
+
+{% block title %}
+
+{% endblock %}
+
+{% block body_admin %}
+
+    <div class="row mb-2">
+        <div class="col-md-4">
+            <form action="" name="form_filtro_status">
+                <select name="busca_filtro" id=""
+                        class="form-control-sm form-control float-left"
+                        onchange="document.form_filtro_status.submit()"
+                >
+                    <option value="" {% if status == "" %}selected="selected"{% endif %}>Filtrar Microjob por
+                    </option>
+                    <option value="P" {% if status == "P" %}selected="selected"{% endif %}>Publicado</option>
+                    <option value="A" {% if status == "A" %}selected="selected"{% endif %}>Em Análise</option>
+                    <option value="I" {% if status == "I" %}selected="selected"{% endif %}>Inativos</option>
+                    <option value="E" {% if status == "E" %}selected="selected"{% endif %}>Excluídos</option>
+                    <option value="R" {% if status == "R" %}selected="selected"{% endif %}>Rejeitados</option>
+                </select>
+            </form>
+        </div>
+    </div>
+    <hr>
+    {% for job in microjobs %}
+        <div class="card mb-2">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-1">
+                        <img width="60" src="{{ asset(caminho_imagens ~ job.imagem) }}" alt="{{ job.titulo }}">
+                    </div>
+                    <div class="col-md-6">
+                        <h5><a href="{{ path('visualizar_job', {"slug": job.slug}) }}"
+                               target="_blank"> {{ job.titulo }}</a></h5>
+                    </div>
+                    <div class="col-md-2">
+                        <p>{{ job.dataCadastro|date('d/m/Y') }}</p>
+                    </div>
+                    <div class="col-md-1" id="div_status_{{ job.id }}">
+                        {% if job.status == "A" %}
+                            <p class="badge badge-warning text-white">Em análise</p>
+                        {% elseif job.status == "P" %}
+                            <p class="badge badge-success text-white">Publicado</p>
+                        {% elseif job.status == "I" %}
+                            <p class="badge badge-secondary text-white">Inativo</p>
+                        {% elseif job.status == "E" %}
+                            <p class="badge badge-danger text-white">Excluído</p>
+                        {% elseif job.status == "R" %}
+                            <p class="badge badge-dark text-white">Rejeitado</p>
+                        {% else %}
+                            <p class="badge badge-light">N/A</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-2">
+
+                        {% if job.status != "E" %}
+                            <a href="{{ path("excluir_servico", {"id": job.id}) }}"
+                               class="float-right btn btn-danger btn-sm bt_excluir_servico"><i
+                                        class="fa fa-trash-alt"></i></a>
+                            <a href="" class="float-right btn btn-success btn-sm mr-1"><i class="fa fa-pencil-alt"></i></a>
+
+                            {% if job.status == "A" %}
+                                <div class="clearfix mb-2"></div>
+
+                                <a href="{{ path('admin_publicar_job', {"id": job.id}) }}" data-botao="publicar_{{ job.id }}" class="bt_publicar_job float-right btn btn-primary btn-sm"><i class="fa fa-check-circle"></i></a>
+
+                                <a href="{{ path('admin_rejeitar_job', {"id": job.id}) }}" data-botao="rejeitar_{{ job.id }}" class="bt_rejeitar_job float-right btn btn-warning btn-sm mr-1"><i class="fa fa-ban text-white"></i></a>
+
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="card mb-2">
+            <div class="card-body">
+                <div class="alert alert-warning">Nenhum serviço encontrado</div>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            $(".bt_publicar_job").click(function (ev) {
+                ev.preventDefault();
+                var $this = $(this);
+                var url = $(this).prop("href");
+                // alert(id);
+                $.get(url, function (response) {
+                    $this.remove();
+                    $(".bt_rejeitar_job[data-botao='rejeitar_"+ response.servico.id +"']").remove();
+
+                    $("#div_status_" + response.servico.id).html(
+                        '<p class="badge badge-success text-white">Publicado</p>'
+                    );
+
+                    alert('Job Publicado com Sucesso!')
+                }, 'json');
+            });
+
+            $(".bt_rejeitar_job").click(function (ev) {
+                ev.preventDefault();
+                var $this = $(this);
+                var url = $(this).prop("href");
+                // alert(id);
+                $.get(url, function (response) {
+                    $this.remove();
+                    $(".bt_publicar_job[data-botao='publicar_"+ response.servico.id +"']").remove();
+
+                    $("#div_status_" + response.servico.id).html(
+                        '<p class="badge badge-dark text-white">Rejeitado</p>'
+                    );
+
+                    alert('Job Rejeitado!')
+                }, 'json');
+            });
+        })
+
+    </script>
+{% endblock %}
+
