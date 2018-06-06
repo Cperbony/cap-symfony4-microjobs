@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Serializable;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -14,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass="App\Repository\UsuarioRepository")
  * @UniqueEntity("email", message="Esse email já esta em uso!")
  */
-class Usuario implements UserInterface
+class Usuario implements UserInterface, Serializable
 {
     /**
      * @ORM\Id()
@@ -83,6 +84,11 @@ class Usuario implements UserInterface
      * @ORM\OneToMany(targetEntity="App\Entity\Contratacoes", mappedBy="freelancer")
      */
     private $vendas;
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\DadosPessoais", cascade={"persist", "remove"})
+     */
+    private $dados_pessoais;
 
 
     public function __construct()
@@ -214,7 +220,7 @@ class Usuario implements UserInterface
      * and populated in any number of different ways when the user object
      * is created.
      *
-     * @return (Role|string)[] The user roles
+     * @return  (Role|string)[] The user roles
      */
     public function getRoles()
     {
@@ -229,7 +235,7 @@ class Usuario implements UserInterface
      *
      * @return string The password
      */
-    public function getPassword() : string
+    public function getPassword(): string
     {
         return $this->senha;
     }
@@ -251,7 +257,7 @@ class Usuario implements UserInterface
      *
      * @return string The username
      */
-    public function getUsername() : string
+    public function getUsername(): string
     {
         return $this->email;
     }
@@ -358,5 +364,56 @@ class Usuario implements UserInterface
         }
 
         return $this;
+    }
+
+    public function getDadosPessoais(): ?DadosPessoais
+    {
+        return $this->dados_pessoais;
+    }
+
+    public function setDadosPessoais(?DadosPessoais $dados_pessoais): self
+    {
+        $this->dados_pessoais = $dados_pessoais;
+
+        return $this;
+    }
+
+    /**
+     * String representation of object
+     * @link http://php.net/manual/en/serializable.serialize.php
+     * @return string the string representation of the object or null
+     * @since 5.1.0
+     */
+    public function serialize()
+    {
+        return serialize([
+            $this->getId(),
+            $this->getNome(),
+            $this->getEmail(),
+            $this->getSenha(),
+            $this->getRoles(),
+            $this->getStatus()
+        ]);
+    }
+
+    /**
+     * Constructs the object
+     * @link http://php.net/manual/en/serializable.unserialize.php
+     * @param string $serialized <p>
+     * The string representation of the object.
+     * </p>
+     * @return void
+     * @since 5.1.0
+     */
+    public function unserialize($serialized)
+    {
+        list(
+            $this->id,
+            $this->nome,
+            $this->email,
+            $this->senha,
+            $this->roles,
+            $this->status,
+            ) = unserialize($serialized, ['allowed_class' => false]);
     }
 }

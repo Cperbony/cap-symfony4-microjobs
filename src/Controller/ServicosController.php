@@ -87,6 +87,18 @@ class ServicosController extends Controller
     }
 
     /**
+     * @Route("/contratar-servico/{id}/{slug}/tela-pagamento", name="tela-pagamento")
+     * @Template("servicos/tela-pagamento.html.twig")
+     */
+    public function telaPagamento(Servico $servico)
+    {
+        return [
+            'job' => $servico
+        ];
+
+    }
+
+    /**
      * @Route("/contratar-servico/{id}/slug", name="contratar_servico")
      * @param Servico $servico
      * @param UserInterface $user

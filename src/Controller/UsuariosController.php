@@ -3,11 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Usuario;
+use App\Form\UsuarioDadosPessoaisType;
 use App\Form\UsuarioType;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -155,6 +155,32 @@ class UsuariosController extends Controller
 
         $this->addFlash("success", "Perfil Alterado com Sucesso!");
         return $this->redirectToRoute("painel");
+    }
 
+    /**
+     * @Route("/painel/usuario/dados-pessoais", name="dados_pessoais")
+     * @Template("usuarios/dados-pessoais.html.twig")
+     * @param UserInterface $user
+     * @param Request $request
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function dadosPessoais(UserInterface $user, Request $request)
+    {
+        $usuario = $this->em->getRepository(Usuario::class)->find($user);
+        $form = $this->createForm(UsuarioDadosPessoaisType::class, $usuario);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()) {
+            $usuario->getDadosPessoais()->setDataAlteracao(new \DateTime());
+            $this->em->persist($usuario);
+            $this->em->flush();
+
+            $this->addFlash("success", "Dados Alterado com Sucesso!");
+            return $this->redirectToRoute("painel");
+        }
+
+        return [
+            'form' => $form->createView()
+        ];
     }
 }

@@ -59,10 +59,11 @@ class ServicosController extends Controller
         return new JsonResponse(
             [
                 'success' => true,
-                [
-                    'servico' => $servico->getId()
+                'servico' => [
+                    'id' => $servico->getId()
                 ]
-            ]);
+            ]
+        );
     }
 
     /**
@@ -79,10 +80,11 @@ class ServicosController extends Controller
         return new JsonResponse(
             [
                 'success' => true,
-                [
-                    'servico' => $servico->getId()
+                'servico' => [
+                    'id' => $servico->getId()
                 ]
-            ]);
+            ]
+        );
     }
 
 

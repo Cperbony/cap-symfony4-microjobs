@@ -2,13 +2,18 @@
   <dictionary name="Claus Perbony">
     <words>
       <w>cadastrar</w>
+      <w>dados</w>
       <w>faturamento</w>
+      <w>foto</w>
       <w>nullable</w>
       <w>painel</w>
+      <w>pessoais</w>
       <w>registro</w>
       <w>servico</w>
+      <w>uploadable</w>
       <w>usuario</w>
       <w>usuarios</w>
+      <w>vich</w>
     </words>
   </dictionary>
 </component>
