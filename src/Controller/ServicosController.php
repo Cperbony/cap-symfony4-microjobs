@@ -8,6 +8,9 @@ use App\Entity\Usuario;
 use App\Form\ServicoType;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\Form\Button;
+use Symfony\Component\Form\Extension\Core\Type\ButtonType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -28,7 +31,7 @@ class ServicosController extends Controller
      */
     public function index()
     {
-        return $this->render('servico/index.html.twig', [
+        return $this->render('servicos/index.html.twig', [
             'controller_name' => 'ServicosController',
         ]);
     }
@@ -38,7 +41,7 @@ class ServicosController extends Controller
      * @Template("servicos/novo-micro-jobs.html.twig")
      * @param Request $request
      * @param UserInterface $user
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function cadastrar(Request $request, UserInterface $user)
     {
@@ -64,7 +67,6 @@ class ServicosController extends Controller
 
             $this->addFlash("success", "Cadastrado com Sucesso");
             return $this->redirectToRoute('painel');
-
         }
         return [
             'form' => $form->createView()
@@ -90,16 +92,44 @@ class ServicosController extends Controller
      * @Route("/contratar-servico/{id}/{slug}/tela-pagamento", name="tela-pagamento")
      * @Template("servicos/tela-pagamento.html.twig")
      */
-    public function telaPagamento(Servico $servico)
+    public function telaPagamento(Servico $servico, UserInterface $user)
     {
-        return [
-            'job' => $servico
-        ];
+        if($user->getRoles()[0] == "ROLE_FREELA") {
+            $this->addFlash("warning", "<h3>Atenção</h3><p>Para contratar um serviço é necessário ser um cliente.</p><br><p>Acesse seu painel e faça a migração gratuitamente!</p>");
+            return $this->redirectToRoute('painel');
+        }
 
+        $data = [];
+        $form = $this->createFormBuilder($data)
+            ->add('numero', TextType::class,[
+                'label' => "Número do Cartão"
+            ])
+            ->add('mes_expiracao', TextType::class, [
+                'label' => "Mês"
+            ])
+            ->add('ano_expiracao', TextType::class, [
+                'label' => "Ano"
+            ])
+            ->add('cod_seguranca', TextType::class, [
+                'label' => "Código Segurança"
+            ])
+            ->add('enviar', ButtonType::class, [
+                'label' => "Realizar Pagamento",
+                'attr' => [
+                    'class' => 'text-center btn btn-primary'
+                ]
+            ])
+            ->getForm();
+
+        return [
+            'job' => $servico,
+            'form' => $form
+        ];
     }
 
     /**
-     * @Route("/contratar-servico/{id}/slug", name="contratar_servico")
+     * @Route("/contratar-servico/{id}/{slug}/tela-pagamento", name="tela_pagamento")
+     * @Template("servicos/tela-pagamento.html.twig")
      * @param Servico $servico
      * @param UserInterface $user
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
@@ -119,13 +149,13 @@ class ServicosController extends Controller
         $this->em->flush();
 
         $this->get('email')->enviar(
-        $user->getNome() . ' - Contratação de Serviço',
-        [$user->getEmail() => $user->getNome()],
-        'emails/servicos/contratacao_cliente.html.twig', [
-            'servico' => $servico,
-            'cliente' => $user
-        ]
-    );
+            $user->getNome() . ' - Contratação de Serviço',
+            [$user->getEmail() => $user->getNome()],
+            'emails/servicos/contratacao_cliente.html.twig', [
+                'servico' => $servico,
+                'cliente' => $user
+            ]
+        );
 
         $this->get('email')->enviar(
             $servico->getUsuario()->getNome() . ' - Parabéns',

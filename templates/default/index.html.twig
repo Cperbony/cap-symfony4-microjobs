@@ -33,7 +33,7 @@
                                     <p class="badge badge-info">R$ {{ job.valor|number_format(2, ", ", ".") }}</p>
                                     <small class="text-muted">{{ job.dataCadastro|date("d/m/Y") }}</small>
                                 </div>
-                                <small class="text-muted float-right">{{ job.nome }}</small>
+                                <small class="text-muted float-right">{{ job.usuario.nome }}</small>
                             </div>
                         </div>
                     </div>

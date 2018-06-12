@@ -93,17 +93,17 @@
     <div class="container">
         {% for flashMessage in app.session.flashbag.get('success') %}
             <div class="alert alert-success">
-                {{ flashMessage }}
+                {{ flashMessage|raw }}
             </div>
         {% endfor %}
         {% for flashMessage in app.session.flashbag.get('warning') %}
             <div class="alert alert-warning">
-                {{ flashMessage }}
+                {{ flashMessage|raw }}
             </div>
         {% endfor %}
         {% for flashMessage in app.session.flashbag.get('error') %}
             <div class="alert alert-danger">
-                {{ flashMessage }}
+                {{ flashMessage|raw }}
             </div>
         {% endfor %}
     </div>

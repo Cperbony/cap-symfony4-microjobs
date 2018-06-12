@@ -10,7 +10,8 @@
             <div class="card-body">
                 <div class="row mb-5">
                     <div class="col-md-12">
-                        <h4>Contrar serviço <strong>{{ job.titulo }}</strong> por <strong>{{ job.valor }}</strong>?</h4>
+                        <h4>Contratar serviço <strong>{{ job.titulo }}</strong> por <strong>{{ job.valor }}</strong>?
+                        </h4>
 
                     </div>
                 </div>
@@ -38,6 +39,17 @@
                 </div>
                 <hr>
                 <div class="form-row">
+                    <input type="hidden" value="" id="hash_cc">
+                    <input type="hidden" value="" id="order_id">
+                    <textarea name="" id="form_pub_key" cols="30" rows="10" style="display: none">-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlGWEatISvN2Om3N0yBPt
+oDBV15uXu7VVD8FPiggvIKqqawfPTGuDcY8J95WaBzSO80HdjTCPmBaZSOLWK/+q
+0Wl4NN+zXVRCJtSYSB0qSh5rCqa5pqpfd6Hqz26zoaY0I7ZYYqDO/KYVQzVLS4/Q
+VATpPU1ndnuDVHCOOFdKhELKwTVWvjddRVDOXD4Em000EshKZyPxuc2GRhB15vxh
+pB0gE33J3Jl6FyAbygj7MoueO85Jwi2HKzLmxPYQE40GpsGzJdUBbwMioXmHE2BJ
+XF8nJ4cSKyCNBGceFOTQ3D82+aG1A/QM3Mz0OhSYgHVoM+2fw7CiJUbzYaFzq5+8
+awIDAQAB
+-----END PUBLIC KEY-----</textarea>
                     {{ form_widget(form.enviar) }}
                 </div>
                 <div class="row mt-5">
@@ -45,8 +57,10 @@
                         <h3 class="display-5">Boleto / Débito bancário</h3>
                         <hr>
                         <div class="row">
-                            <div class="col-md-6"><a href="" class="btn btn-lg btn-block btn-info">Pagar via boleto</a></div>
-                            <div class="col-md-6"><a href="" class="btn btn-lg btn-block btn-warning">Pagar via débido bancário (Itaú)</a></div>
+                            <div class="col-md-6"><a href="" class="btn btn-lg btn-block btn-info">Pagar via boleto</a>
+                            </div>
+                            <div class="col-md-6"><a href="" class="btn btn-lg btn-block btn-warning">Pagar via débido
+                                    bancário (Itaú)</a></div>
                         </div>
                     </div>
                 </div>
@@ -65,4 +79,15 @@
 
 {% block title %}
     Contratar {{ job.usuario.nome }} por {{ job.titulo }} -
+{% endblock %}
+
+{% block javascripts %}
+    <script src="//assets.moip.com.br/v2/moip.min.js" type="text/javascript"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("form_enviar").click(function () {
+            });
+        });
+    </script>
 {% endblock %}

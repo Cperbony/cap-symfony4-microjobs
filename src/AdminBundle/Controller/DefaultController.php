@@ -20,6 +20,10 @@ class DefaultController extends Controller
      */
     public function index()
     {
-
+//        // Set some html and get the service
+//        $html = '<h1>Sample Title</h1><p>Lorem Ipsum</p>';
+//        $dompdf = $this->get('dompdf');
+//        // Stream the pdf to the browser
+//        $dompdf->streamHtml($html, "document.pdf");
     }
 }

@@ -67,7 +67,5 @@ class DefaultController extends Controller
         return [
             'job' => $servico
         ];
-
-
     }
 }

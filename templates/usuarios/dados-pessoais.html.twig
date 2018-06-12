@@ -25,6 +25,13 @@
                 {{ form_label(form.dados_pessoais.foto_file) }}
                 {{ form_widget(form.dados_pessoais.foto_file) }}
             </div>
+            <div class="col-md-6 pt-5">
+                <h3>Conectar ao Moip</h3>
+                <a href="javascript:void(0);" id="bt_conectar_moip" class="btn btn-block btn-lg btn-primary">
+                    Conectar a sua conta Moip
+                </a>
+
+            </div>
         </div>
         <div class="form-row mt-3">
             <div class="col-md-12">
@@ -82,3 +89,15 @@
 {% block title %}
 
 {% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#bt_conectar_moip").click(function () {
+            $.get("/painel/usuario/auth-moip", function (response) {
+                window.location = response.url;
+            })
+        });
+    })
+</script>
+{%  endblock %}

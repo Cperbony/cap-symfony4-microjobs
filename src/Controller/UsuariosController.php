@@ -6,6 +6,10 @@ use App\Entity\Usuario;
 use App\Form\UsuarioDadosPessoaisType;
 use App\Form\UsuarioType;
 use Doctrine\ORM\EntityManagerInterface;
+use Moip\Auth\Connect;
+use Moip\Exceptions\UnautorizedException;
+use Moip\Exceptions\UnexpectedException;
+use Moip\Exceptions\ValidationException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -170,7 +174,7 @@ class UsuariosController extends Controller
         $form = $this->createForm(UsuarioDadosPessoaisType::class, $usuario);
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $usuario->getDadosPessoais()->setDataAlteracao(new \DateTime());
             $this->em->persist($usuario);
             $this->em->flush();
@@ -182,5 +186,75 @@ class UsuariosController extends Controller
         return [
             'form' => $form->createView()
         ];
+    }
+
+    /**
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @Route("/painel/usuario/auth-moip")
+     */
+    public function getAuthMoip()
+    {
+        try {
+            $redir_uri = $this->getParameter('moip_url_retorno');
+            $app_id = $this->getParameter('moip_app_id');
+            $scope = true;
+            $connect = new Connect($redir_uri, $app_id, $scope, Connect::ENDPOINT_SANDBOX);
+            $connect->setScope(Connect::RECEIVE_FUNDS)
+                ->setScope(Connect::REFUND)
+                ->setScope(Connect::MANAGE_ACCOUNT_INFO)
+                ->setScope(Connect::RETRIEVE_FINANCIAL_INFO);
+
+            return $this->json(['url' => $connect->getAuthUrl()]);
+
+
+        } catch (UnautorizedException $e) {
+            echo $e->getMessage();
+        } catch (ValidationException $e) {
+            echo $e->getMessage();
+        } catch (UnexpectedException $e) {
+            echo $e->getMessage();
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @param UserInterface $user
+     *
+     * @Route("/painel/usuarios/autorizar-moip")
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function getCodeMoip(Request $request, UserInterface $user)
+    {
+        $code = $request->get("code");
+
+        try {
+            $redir_uri = $this->getParameter('moip_url_retorno');
+            $app_id = $this->getParameter('moip_app_id');
+            $scope = true;
+            $connect = new Connect($redir_uri, $app_id, $scope, Connect::ENDPOINT_SANDBOX);
+            $secret = $this->getParameter('moip_secret');
+            $connect->setClientSecret($secret);
+            $connect->setCode($code);
+            $auth = $connect->authorize();
+
+//            dump($auth); exit;
+
+            $usuario = $this->em->getRepository(Usuario::class)->find($user);
+            $usuario->getDadosPessoais()->setMoipAccessToken($auth->access_token);
+            $usuario->getDadosPessoais()->setMoipIdConta($auth->moipAccount->id);
+
+            $this->em->persist($usuario);
+            $this->em->flush();
+
+            $this->addFlash("success", "Sua conta Moip foi vinculada com Sucesso!");
+            return $this->redirectToRoute("painel");
+
+        } catch (UnautorizedException $e) {
+            echo $e->getMessage();
+        } catch (ValidationException $e) {
+            echo $e->getMessage();
+        } catch (UnexpectedException $e) {
+            echo $e->getMessage();
+        }
     }
 }
